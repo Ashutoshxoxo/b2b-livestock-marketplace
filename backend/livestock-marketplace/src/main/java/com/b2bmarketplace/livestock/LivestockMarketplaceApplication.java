@@ -1,4 +1,4 @@
-package com.b2bmarketplace.livestock_marketplace;
+package com.b2bmarketplace.livestock;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

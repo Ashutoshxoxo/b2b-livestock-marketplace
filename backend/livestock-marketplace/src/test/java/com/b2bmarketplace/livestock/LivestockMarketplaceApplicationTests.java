@@ -1,4 +1,4 @@
-package com.b2bmarketplace.livestock_marketplace;
+package com.b2bmarketplace.livestock;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
