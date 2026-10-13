@@ -75,6 +75,10 @@ public class UserEntity {
     protected UserEntity() {
     }
 
+    public static UserEntity createNewUser() {
+        return new UserEntity();
+    }
+
     public UUID getId() {
         return id;
     }

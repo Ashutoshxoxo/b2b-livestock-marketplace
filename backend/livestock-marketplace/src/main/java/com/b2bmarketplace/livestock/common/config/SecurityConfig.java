@@ -2,6 +2,7 @@ package com.b2bmarketplace.livestock.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,6 +26,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/health",
                                 "/actuator/health"
+                        ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/auth/register"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

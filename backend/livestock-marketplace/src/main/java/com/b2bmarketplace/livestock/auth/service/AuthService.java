@@ -1,9 +1,11 @@
 package com.b2bmarketplace.livestock.auth.service;
 
 
+import com.b2bmarketplace.livestock.auth.dto.AuthResponse;
 import com.b2bmarketplace.livestock.auth.dto.RegisterRequest;
 import com.b2bmarketplace.livestock.user.entity.RoleEntity;
 import com.b2bmarketplace.livestock.user.entity.UserEntity;
+import com.b2bmarketplace.livestock.user.entity.UserStatus;
 import com.b2bmarketplace.livestock.user.repository.RoleRepository;
 import com.b2bmarketplace.livestock.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -28,7 +30,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public AuthService register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) {
 
         String email = request.email().trim().toLowerCase(Locale.ROOT);
         String phone = request.phone().trim();
@@ -55,9 +57,26 @@ public class AuthService {
 
         RoleEntity role = roleRepository.findByName(roleName).orElseThrow(() -> new IllegalStateException("Required Role is not Present in the Database :" + roleName ));
 
-        UserEntity user = new UserEntity();
+        UserEntity user = UserEntity.createNewUser();
         user.setEmail(email);
+        user.setPhone(phone);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        user.setStatus(UserStatus.PENDING);
+        user.addRole(role);
 
+        UserEntity savedUser = userRepository.saveAndFlush(user);
+
+        return new AuthResponse(
+                savedUser.getId(),
+                savedUser.getEmail(),
+                savedUser.getPhone(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getStatus().name(),
+                role.getName()
+        );
 
     }
 }
