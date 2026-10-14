@@ -2,6 +2,8 @@ package com.b2bmarketplace.livestock.auth.service;
 
 
 import com.b2bmarketplace.livestock.auth.dto.AuthResponse;
+import com.b2bmarketplace.livestock.auth.dto.LoginRequest;
+import com.b2bmarketplace.livestock.auth.dto.LoginResponse;
 import com.b2bmarketplace.livestock.auth.dto.RegisterRequest;
 import com.b2bmarketplace.livestock.user.entity.RoleEntity;
 import com.b2bmarketplace.livestock.user.entity.UserEntity;
@@ -28,6 +30,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final JwtService jwtService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -78,5 +82,45 @@ public class AuthService {
                 role.getName()
         );
 
+    }
+
+    @Transactional
+    public LoginResponse login(LoginRequest request) {
+
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Invalid Username or Password"
+                ));
+
+
+        if(!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            throw  new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Username or Password");
+        }
+
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw  new ResponseStatusException(HttpStatus.FORBIDDEN,"Your Account is not Active");
+
+        }
+
+        String token = jwtService.generateToken(user);
+
+        AuthResponse userResponse = new AuthResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getStatus().name(),
+                user.getRoles().stream().map(RoleEntity::getName).sorted().findFirst().orElse("UNKNOWN")
+        );
+
+        return new LoginResponse(
+                token,
+                "Bearer",
+                jwtService.getExpirationMs() /1000,
+                userResponse
+        );
     }
 }

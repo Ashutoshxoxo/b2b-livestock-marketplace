@@ -2,6 +2,8 @@ package com.b2bmarketplace.livestock.auth.controller;
 
 
 import com.b2bmarketplace.livestock.auth.dto.AuthResponse;
+import com.b2bmarketplace.livestock.auth.dto.LoginRequest;
+import com.b2bmarketplace.livestock.auth.dto.LoginResponse;
 import com.b2bmarketplace.livestock.auth.dto.RegisterRequest;
 import com.b2bmarketplace.livestock.auth.service.AuthService;
 import jakarta.validation.Valid;
@@ -24,10 +26,14 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
 
-        AuthResponse response = authService.register(request);
+//        AuthResponse response = authService.register(request);
 
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
+    }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
 
+        return ResponseEntity.ok(authService.login(request));
     }
 }
